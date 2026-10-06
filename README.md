@@ -111,7 +111,9 @@ whisper.cpp 默认 `-t 4`，在 10 核 M5 上白白浪费性能。代码取「�
 
 ## 版本库内容
 
-仓库**只放源码**（220 个文件，`.git` 约 1.8MB），模型与构建产物全部排除：
+仓库：<https://github.com/bosprimigenious/VoiceInput>（**私有**）
+
+只放源码（43 个文件，`.git` 约 1.7MB），模型与构建产物全部排除：
 
 | 排除项 | 体积 | 怎么恢复 |
 | --- | --- | --- |
@@ -119,6 +121,25 @@ whisper.cpp 默认 `-t 4`，在 10 核 M5 上白白浪费性能。代码取「�
 | `dist/` | 528MB | `bash scripts/build.sh` |
 | `.build/` | 1.6GB | `swift build` 自动重建（首次会重新拉全部依赖） |
 | `*.dmg` | 1.3GB | `bash scripts/build.sh` |
+
+另外排除 `.qoder/` 与 `.ai-context/`：那是 AI 工具的本地记忆/知识库，其中各有一份
+240KB 的 `repowiki-metadata.json`，内含 Qoder 的 `catalogue_think_content` 编码块
+（内容不透明）。文件仍在本地，只是不进版本库。
+
+### 要转公开之前
+
+```bash
+gh repo edit bosprimigenious/VoiceInput --visibility public --accept-visibility-change-consequences
+```
+
+先决定两件事：
+
+1. **许可证**。仓库目前没有 LICENSE，私有状态下无所谓，公开就必须补。
+2. **第三方内容**：
+   - `.speech-swift`（`soniqo/speech-swift`）已被排除，不再随仓库分发，但要确认你自己的使用方式符合它的许可。
+   - `VoiceInputMacApp/Resources/whisper-cli` 是 **whisper.cpp（MIT）** 的编译产物，
+     2.4MB，**在仓库里**。保留它能让仓库开箱可用，但公开时建议在 README 注明来源与许可，
+     或者干脆删掉改为 `bash scripts/build-whisper.sh` 本地重建。
 
 ### 依赖 .speech-swift
 
