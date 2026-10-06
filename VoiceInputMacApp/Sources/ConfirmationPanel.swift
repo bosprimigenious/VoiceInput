@@ -100,7 +100,7 @@ class ConfirmationPanelController: ObservableObject {
         }
         
         newPanel.makeKeyAndOrderFront(nil)
-        NSApp.activate(ignoringOtherApps: true)
+        NSApp.activate()   // macOS 14 起 activate(ignoringOtherApps:) 已废弃且参数无效果
         panel = newPanel
     }
     

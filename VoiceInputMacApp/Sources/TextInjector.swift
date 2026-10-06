@@ -10,8 +10,9 @@ class TextInjector {
         let shouldActivate = shouldActivateApp(targetApp)
 
         if shouldActivate, let app = targetApp {
-            // 使用 activateIgnoringOtherApps 确保 Electron 等 App 也能正确激活
-            app.activate(options: [.activateIgnoringOtherApps, .activateAllWindows])
+            // macOS 14 起 .activateIgnoringOtherApps 已被废弃且不再有任何效果，
+            // 继续传只会产生废弃警告（macOS 27 上尤其吵），所以去掉。
+            app.activate(options: [.activateAllWindows])
             Logger.shared.log("已激活目标应用：\(app.localizedName ?? "未知") (PID: \(app.processIdentifier))")
         }
 
@@ -153,7 +154,7 @@ class TextInjector {
     /// 兼容模式：逐个字符输入（某些应用不支持一次性 Unicode 输入）
     func typeCharacterByCharacter(text: String, targetApp: NSRunningApplication?) {
         if shouldActivateApp(targetApp) {
-            targetApp?.activate(options: [.activateIgnoringOtherApps, .activateAllWindows])
+            targetApp?.activate(options: [.activateAllWindows])
         }
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { [weak self] in

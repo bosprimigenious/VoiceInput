@@ -1,6 +1,11 @@
 # VoiceInput
 
-macOS 菜单栏语音输入工具。当前版本使用本地 Whisper 模型转录。
+macOS 菜单栏语音输入工具。本地 Whisper 模型转录（离线、不上传音频），
+转写完成后自动把文字粘进录音前所在的那个 App。
+
+- **当前版本**：2.0.0
+- **系统要求**：macOS 15.0 或更高（本版在 **macOS 27.0.1 + Xcode 27** 上构建与验证）
+- **许可证**：MIT（见 [LICENSE](LICENSE)），第三方组件见下方「第三方组件」
 
 ## 启动
 
@@ -111,9 +116,9 @@ whisper.cpp 默认 `-t 4`，在 10 核 M5 上白白浪费性能。代码取「�
 
 ## 版本库内容
 
-仓库：<https://github.com/bosprimigenious/VoiceInput>（**私有**）
+仓库：<https://github.com/bosprimigenious/VoiceInput>（公开，MIT）
 
-只放源码（43 个文件，`.git` 约 1.7MB），模型与构建产物全部排除：
+只放源码（`.git` 约 1.7MB），模型与构建产物全部排除：
 
 | 排除项 | 体积 | 怎么恢复 |
 | --- | --- | --- |
@@ -126,20 +131,28 @@ whisper.cpp 默认 `-t 4`，在 10 核 M5 上白白浪费性能。代码取「�
 240KB 的 `repowiki-metadata.json`，内含 Qoder 的 `catalogue_think_content` 编码块
 （内容不透明）。文件仍在本地，只是不进版本库。
 
-### 要转公开之前
+### 发版流程
 
 ```bash
-gh repo edit bosprimigenious/VoiceInput --visibility public --accept-visibility-change-consequences
+# 1) 改版本号（两处都要改）
+#    VoiceInputMacApp/Info.plist : CFBundleShortVersionString / CFBundleVersion
+# 2) 重建并跑完所有 gate
+bash scripts/rebuild-and-verify.sh
+# 3) 出安装包（不带 SKIP_DMG 时 build.sh 会调 create-dmg）
+bash scripts/build.sh
+# 4) 打 tag 并发 Release
+git tag -a v2.0.0 -m "VoiceInput 2.0.0"
+git push origin v2.0.0
+gh release create v2.0.0 dist/VoiceInput.dmg --title "VoiceInput 2.0.0" --notes-file CHANGELOG.md
 ```
 
-先决定两件事：
+### 第三方组件
 
-1. **许可证**。仓库目前没有 LICENSE，私有状态下无所谓，公开就必须补。
-2. **第三方内容**：
-   - `.speech-swift`（`soniqo/speech-swift`）已被排除，不再随仓库分发，但要确认你自己的使用方式符合它的许可。
-   - `VoiceInputMacApp/Resources/whisper-cli` 是 **whisper.cpp（MIT）** 的编译产物，
-     2.4MB，**在仓库里**。保留它能让仓库开箱可用，但公开时建议在 README 注明来源与许可，
-     或者干脆删掉改为 `bash scripts/build-whisper.sh` 本地重建。
+| 组件 | 许可 | 是否随仓库分发 |
+| --- | --- | --- |
+| [whisper.cpp](https://github.com/ggml-org/whisper.cpp) | MIT | 是 —— `Resources/whisper-cli` 是其编译产物（2.4MB），模型文件不随仓库分发 |
+| [speech-swift](https://github.com/soniqo/speech-swift) | 见上游 | 否 —— 以本地路径依赖方式引用，已 `.gitignore` 排除 |
+| [mlx-swift](https://github.com/ml-explore/mlx-swift) | MIT | 否 —— 由 speech-swift 间接引入 |
 
 ### 依赖 .speech-swift
 

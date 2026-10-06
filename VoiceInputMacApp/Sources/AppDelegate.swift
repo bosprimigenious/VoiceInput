@@ -99,7 +99,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
             }
         }
         
-        NSApp.activate(ignoringOtherApps: true)
+        NSApp.activate()   // macOS 14 起 activate(ignoringOtherApps:) 已废弃且参数无效果
     }
     
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
@@ -280,7 +280,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
         }
         // 将焦点还给目标应用
         if let app = previousApp, shouldActivateApp(app) {
-            app.activate(options: [.activateIgnoringOtherApps, .activateAllWindows])
+            // 同上：.activateIgnoringOtherApps 自 macOS 14 起已废弃、无效果
+            app.activate(options: [.activateAllWindows])
         }
     }
     
