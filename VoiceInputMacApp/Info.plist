@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleDevelopmentRegion</key>
+    <string>zh-CN</string>
+    <key>CFBundleDisplayName</key>
+    <string>VoiceInput</string>
+    <key>CFBundleExecutable</key>
+    <string>$(EXECUTABLE_NAME)</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.ai.voiceinputmacapp</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>CFBundleName</key>
+    <string>VoiceInput</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0</string>
+    <key>CFBundleVersion</key>
+    <string>1</string>
+    <key>LSMinimumSystemVersion</key>
+    <string>13.0</string>
+    <key>LSUIElement</key>
+    <true/>
+    <key>NSSupportsAutomaticTermination</key>
+    <false/>
+    <key>NSSupportsSuddenTermination</key>
+    <false/>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>VoiceInput 需要麦克风权限来录制你的语音并转为文字。</string>
+    <key>NSSpeechRecognitionUsageDescription</key>
+    <string>VoiceInput 需要语音识别权限来实时转录你的语音。</string>
+    <key>NSSystemAdministrationUsageDescription</key>
+    <string>VoiceInput 需要辅助功能权限来监听全局快捷键。</string>
+</dict>
+</plist>

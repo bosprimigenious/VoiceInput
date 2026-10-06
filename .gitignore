@@ -1,0 +1,29 @@
+# 模型文件：单个 141MB-1.5GB，不进版本库
+# 小模型由 build.sh 打包进 App，大模型放在
+# ~/Library/Application Support/VoiceInput/Models/（见 README「模型与体积」）
+VoiceInputMacApp/Resources/*.bin
+
+# 构建产物
+.build/
+build/
+*.dmg
+
+# 分发的 .app（含模型，528MB+，用 scripts/build.sh 重建）
+dist/
+
+# 本地依赖：自带独立 git 仓库，见 README「依赖 .speech-swift」
+.speech-swift/
+
+# AI 工具的本地记忆/知识库：第三方工具内部产物，不是项目源码。
+# 其中 .qoder / .ai-context 各有一份 240KB 的 repowiki-metadata.json，
+# 内含 Qoder 的 catalogue_think_content 编码块（内容不透明），不适合进版本库。
+# 文件仍留在本地，需要时可直接读；要随仓库分发请先确认内容可公开。
+.qoder/
+.ai-context/
+.cursor/
+
+# macOS
+.DS_Store
+
+# 编辑器/工具缓存（上面那两个目录里也混进了一个 node_modules）
+node_modules/
