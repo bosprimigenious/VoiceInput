@@ -45,4 +45,4 @@ And so my fellow Americans, ask not what your country can do for you, ask what y
 Get-FileHash .\VoiceInput-windows-x64.zip -Algorithm SHA256
 ```
 
-尚未执行真人麦克风、设备拔出、热键冲突、录音/转写期间退出、浏览器输入元素切换、焦点竞争与权限阻止的实机矩阵。UIA 查询及 SendInput 不能原子化。JFK 为英文样本，不证明中文准确率提升；目前未测试中文文件名的 WAV 输入。未签名，可能触发 SmartScreen。正式版仍需完成开发方案中的真人门禁。
+尚未执行真人麦克风、设备拔出、热键冲突、录音/转写期间退出、浏览器输入元素切换、焦点竞争与权限阻止的实机矩阵。UIA 查询及 SendInput 不能原子化。JFK 为英文样本，不证明中文准确率提升；第 5 步已补测中文文件名 WAV 输入并通过，见 [独立回归报告](windows-regression-20261010.md)。未签名，可能触发 SmartScreen。正式版仍需完成开发方案中的真人门禁。

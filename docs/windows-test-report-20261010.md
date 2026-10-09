@@ -99,3 +99,7 @@ CoreChecks 不编译或运行 `InputTargetTracker`、`TrayForm` 及真正的 Win
 - README 原文保护检查第一次遗漏允许的平台标题改名，断言失败；查看 diff 后修正检查，确认除 Windows 部分及“macOS 启动”标题外原文一致。macOS 源码、脚本及 CHANGELOG 与初始快照一致。
 
 最终发布及逐项验收结果见 [Windows 发布验收记录](windows-release-20261010.md)。
+
+## 第 5 步独立回归
+
+2026-10-10 对已发布原 ZIP 执行独立 Windows 回归，33 项核心检查、完整下载哈希、模型/许可及中文 WAV 路径真实转写通过；实际命令、检查工具失败和对照开发文档的未完成项见 [回归报告](windows-regression-20261010.md)。完整实机验收仍 NOT READY。

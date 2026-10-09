@@ -20,6 +20,7 @@ Windows 预览包为 ZIP，解压整个目录后双击 `VoiceInput.exe`；不要
 
 构建和门禁见 [Windows 开发说明](windows/VoiceInput.Windows/README.md)，当前使用 .NET 10。阶段进度与实际失败记录见 [开发验证记录](docs/windows-development-status.md)。
 Windows 实机的麦克风、快捷键和跨应用粘贴尚需验收，预览版不代表这些环节已通过。
+已发布 ZIP 的独立回归通过；结果和开发方案对照见 [回归报告](docs/windows-regression-20261010.md)。
 
 ## macOS 启动
 

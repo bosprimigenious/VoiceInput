@@ -1,0 +1,54 @@
+{
+  "release-regression": {
+    "timestampUtc": "2026-10-09T17:32:32.1550286Z",
+    "modelSha256": "1be3a9b2063867b937e64e2ec7483364a79917e157fa98c5d94b5c1fffea987b",
+    "zipSha256": "e15eaef1dedd88523d263a70d44461527878f0075b90b92640091e7217613b13",
+    "sourceCommit": "ae9bee0ed90cf42e003b06e4bb8950fed1b5709c",
+    "licenses": "passed",
+    "textInjection": "not tested",
+    "unicodeAudioPath": "passed",
+    "humanMicrophone": "not tested",
+    "publishedPackage": "passed"
+  },
+  "verification": {
+    "smoke": "passed",
+    "timestampUtc": "2026-10-09T17:32:32.1486752Z",
+    "humanMicrophone": "not tested",
+    "invalidAudio": "passed",
+    "textInjection": "not tested",
+    "realTranscription": "passed"
+  },
+  "smoke.result": {
+    "arguments": [
+      "--smoke-test"
+    ],
+    "exitCode": 0
+  },
+  "jfk.result": {
+    "arguments": [
+      "--verify-transcription",
+      "D:\\a\\VoiceInput\\VoiceInput\\build\\已发布 Windows 包回归\\输入 音频 JFK.wav",
+      "D:\\a\\VoiceInput\\VoiceInput\\build\\已发布 Windows 包回归\\verification\\jfk-transcription.txt"
+    ],
+    "exitCode": 0
+  },
+  "missing-audio.result": {
+    "arguments": [
+      "--verify-transcription",
+      "D:\\a\\VoiceInput\\VoiceInput\\build\\已发布 Windows 包回归\\verification\\missing.wav",
+      "D:\\a\\VoiceInput\\VoiceInput\\build\\已发布 Windows 包回归\\verification\\invalid-transcription.txt"
+    ],
+    "exitCode": 1
+  },
+  "malformed-audio.result": {
+    "arguments": [
+      "--verify-transcription",
+      "D:\\a\\VoiceInput\\VoiceInput\\build\\已发布 Windows 包回归\\verification\\invalid.wav",
+      "D:\\a\\VoiceInput\\VoiceInput\\build\\已发布 Windows 包回归\\verification\\invalid-transcription.txt"
+    ],
+    "exitCode": 1
+  },
+  "runId": 37966673335,
+  "testCommit": "e3ab5bc94ace37419663fefa5006bc991e02de62",
+  "transcript": "And so my fellow Americans, ask not what your country can do for you, ask what you can do for your country."
+}

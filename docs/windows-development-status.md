@@ -4,11 +4,11 @@
 
 ## 当前结论
 
-Windows x64 预览版已发布：[v2.1.0-windows-preview.1](https://github.com/bosprimigenious/VoiceInput/releases/tag/v2.1.0-windows-preview.1)。Windows runner 通过 33 项核心检查、完整离线 ZIP 解压完整性、中文空格路径启动及简体转换、真实 JFK 转写和坏音频负控。发布标签指向实际通过门禁的源码提交，线上 ZIP digest 与校验附件一致。详细记录见 [发布验收记录](windows-release-20261010.md)。
+Windows x64 预览版已发布：[v2.1.0-windows-preview.1](https://github.com/bosprimigenious/VoiceInput/releases/tag/v2.1.0-windows-preview.1)。Windows runner 通过 33 项核心检查、完整离线 ZIP 解压完整性、中文空格路径启动及简体转换、真实 JFK 转写和坏音频负控。发布标签指向实际通过门禁的源码提交，线上 ZIP digest 与校验附件一致。详细记录见 [发布验收记录](windows-release-20261010.md)。第 5 步已重新下载并执行线上原 ZIP，自动回归通过；当前结果与剩余项见 [回归报告](windows-regression-20261010.md)。
 
 **完整实机验收 NOT READY**：真人麦克风、设备拔出、热键和跨应用粘贴尚未验收，中文识别准确率提升尚无固定录音集证据。以下开发阶段的 32 项测试及缺失门禁是历史记录，当前结果以上述发布记录为准。
 
-## 本轮实现
+## 开发阶段实现记录
 
 - SDK 固定 10.0.401，运行时固定 10.0.12；应用及 CoreChecks 生成依赖锁文件，CI 使用 locked restore。
 - 原生窗口、进程、控件焦点与 UI Automation RuntimeId 联合检查。原窗口中输入元素变化或身份无法确认时，不自动粘贴；UIA 在后台 MTA 线程执行，取消及超时后禁用迟到粘贴。
@@ -17,7 +17,7 @@ Windows x64 预览版已发布：[v2.1.0-windows-preview.1](https://github.com/b
 - 日志记录状态、模型、子进程 PID、退出码和异常类型，不记录音频、提示词或转写正文。
 - CoreChecks 直接链接生产设置、音频和转写代码；子进程夹具用于验证故障处理，实际模型精度由 Windows 真人推理门禁另验。
 
-## 主线实际验证
+## 开发阶段主线实际验证（历史记录）
 
 在 `windows/VoiceInput.Windows` 目录，通过本机临时 SDK 执行：
 

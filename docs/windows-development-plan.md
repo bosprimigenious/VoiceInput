@@ -12,23 +12,21 @@
 
 ## 当前状态与硬阻塞
 
-测试阶段确认的转写输出管道超时缺陷已修复，发布准备阶段核心回归为 33 项通过。Windows 完整包验收与预览发布正在执行，历史失败证据见 [测试报告](windows-test-report-20261010.md)。
+测试阶段确认的输出管道超时缺陷已修复，发布准备阶段核心回归为 33 项通过。已发布 [v2.1.0-windows-preview.1](https://github.com/bosprimigenious/VoiceInput/releases/tag/v2.1.0-windows-preview.1)，源码为 `ae9bee0ed90cf42e003b06e4bb8950fed1b5709c`。发布时 Windows runner 已执行完整 ZIP 解压、启动、真实 JFK 转写及缺失/损坏音频负控制。历史失败证据见 [测试报告](windows-test-report-20261010.md)。
 
-当前完整验收状态为 **NOT READY**。本地原型已有代码，但不能把跨编译成功当作 Windows 可用。
+当前完整验收状态为 **NOT READY**：公开预览包已交付，真人输入链路尚未验收。发布时通过不能代替第 5 步对已发布 ZIP 的独立回归结果。
 
 | 项目 | 当前事实 | 下一项验收 |
 | --- | --- | --- |
-| macOS 主工程 | Swift 项目，仍有会话开始前的未提交改动 | 单独保留，不混入 Windows 提交 |
-| Windows 客户端 | `windows/VoiceInput.Windows` 已新增，已迁移 .NET 10、NAudio 2.2.1 | Windows 原生运行与录音验收 |
-| 应用编译 | 前一轮主线重跑成功，0 警告、0 错误 | 锁定源码提交后由 Windows runner 重建 |
-| 应用 EXE | 原型 EXE 已生成；当前 .NET 10 产物见 `dist/windows-net10-crosscompile/VoiceInput.exe` | 配齐 Windows 后端与模型后运行 |
-| 完整打包 | `scripts/build-windows.ps1` 已新增 | Windows 上编译后端、组包、解压验收 |
-| 自动门禁 | `scripts/verify-windows.ps1` 已新增，PowerShell 语法检查通过 | Windows 上实际执行门禁 |
-| GitHub CI | `.github/workflows/windows.yml` 已新增 | 推送后实际运行 |
-| 公开发布 | 本次 Windows 改动未提交、未推送、未发布 | 用户明确授权提交，门禁通过后发布 |
-| 中文识别精度 | 沿用 small 默认，尚无新增中文基准结果 | 固定录音集评测 |
+| macOS 主工程 | 仍有会话开始前的未提交改动 | 单独保留，不混入 Windows 提交 |
+| Windows 客户端 | .NET 10、NAudio 2.2.1，已完成 Windows 发布构建 | 日常 Windows 11 电脑真人录音与粘贴 |
+| 完整打包 | ZIP 已发布，大小 518928318 字节 | 下载同一发布资产并校验哈希 |
+| 自动门禁 | 发布时和第 5 步已发布 ZIP 独立回归均通过 | 继续完成真人输入链路 |
+| GitHub CI | 构建与发布 workflow 已实际运行 | 独立回归记录新的 run 与资产证据 |
+| 公开发布 | 独立 prerelease tag、ZIP、SHA-256、verification.json 已上传 | 保留原资产，新版本使用新 tag |
+| 中文识别精度 | small 默认，尚无新增中文基准结果 | 固定录音集评测 |
 
-硬阻塞包括：尚未执行 Windows CI；尚未完成真人麦克风、全局快捷键及跨应用粘贴验收；UI Automation 元素核对已实现，但浏览器及原生窗口的实际焦点行为尚未验收；提交授权尚未获得。
+硬阻塞：真人麦克风、全局快捷键及跨应用粘贴尚未验收；UI Automation 已实现，但浏览器及原生窗口的实际焦点行为尚未验收。中文准确率与日常机器耗时仍无固定基准结果。已发布 ZIP 的 SHA-256 为 `e15eaef1dedd88523d263a70d44461527878f0075b90b92640091e7217613b13`。
 
 前一轮曾出现 `async WndProc(ref Message)` 的 CS1988 编译错误，已改为同步分派异步任务。录音关闭异常不结算任务、退出无界等待的问题已修补，但仍需 Windows 故障场景复验。macOS 执行完整 Windows 构建脚本会返回平台错误，这是预期的平台限制，不是 Windows 构建已通过。
 
@@ -93,7 +91,7 @@ VoiceInput 语音输入/
 
 当前源码已迁移至 .NET 10 LTS，SDK 固定为 10.0.401、运行时固定为 10.0.12，并有依赖锁文件。迁移的 Windows 实机回归尚未完成。.NET 8 将于 2026 年 11 月 10 日结束支持，.NET 10 支持至 2028 年 11 月 14 日。自包含程序的运行时由发布者维护，不能依赖用户机器的 .NET 更新自动修复包内运行时。[微软支持政策](https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core)
 
-迁移应单独实施：先备份旧项目和构建配置，再把目标框架改为 `net10.0-windows`，同步更新 workflow SDK、打包许可和说明。安装 SDK 后记录实际版本，通过 `global.json` 固定；生成 NuGet 锁文件，并在 CI 使用锁定恢复。不能只改目标框架而继续下载 .NET 8 的许可和运行时说明。
+迁移已实施：目标框架、workflow SDK、许可与运行时说明已同步，`global.json` 与 NuGet 锁文件固定构建输入。发布阶段将 `RuntimeIdentifier` 固定为 `win-x64`，使 build 与 publish 选择一致的运行时包。后续升级先保存旧配置，再同步更新这些输入，审阅新锁文件，通过锁定恢复与 Windows 包回归后发布。
 
 系统范围先按 Windows 11 x64 验收。若要继续宣称支持 Windows 10，必须列出实际版本和生命周期条件，并重跑对应系统；“exe 可以启动”不等于操作系统仍有厂商支持。ARM64 后续独立构建，不把 x64 模拟执行当作原生支持。
 
@@ -110,7 +108,7 @@ Get-Command pwsh, git, cmake, dotnet
 dotnet --info
 Push-Location windows/VoiceInput.Windows
 dotnet restore VoiceInput.Windows.csproj -r win-x64 --locked-mode -p:PublishSingleFile=true -p:SelfContained=true
-dotnet build VoiceInput.Windows.csproj -c Release --no-restore
+dotnet build VoiceInput.Windows.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true --no-restore
 Pop-Location
 pwsh -NoProfile -File scripts/build-windows.ps1
 ```
@@ -131,10 +129,10 @@ pwsh -NoProfile -File scripts/build-windows.ps1 -OutputDirectory dist/windows-ve
 | 包完整性 | 原目录与 ZIP 解压目录的文件数及逐文件哈希一致 | 完整性检查日志 |
 | 应用启动 | 中文和空格路径中运行 smoke 成功 | 退出码及 verification.json |
 | 真实转写 | 应用实际调用后端，JFK 音频出现预期句子 | jfk-transcription.txt |
-| 负控制 | 缺失音频返回非零退出码 | 退出码及验证记录 |
+| 负控制 | 缺失及损坏音频返回非零退出码，均不生成文本 | 退出码及验证记录 |
 | 产物 | ZIP、ZIP SHA-256、验证证据齐全 | Actions artifact |
 
-当前 smoke 不注册热键、不录音；JFK 是英文录音，不能替代中文准确率评测。后续补充损坏模型、后端非零退出、空语音、超时及取消用例。自动门禁全部通过，只能报告“包自动验收通过”，完整 READY 还需要下一阶段。
+当前 smoke 不注册热键、不录音；JFK 是英文录音，不能替代中文准确率评测。CoreChecks 已覆盖后端非零退出、空结果、管道洪泛、超时、取消和后代继承管道；损坏模型和真人故障恢复仍需补充验收。自动门禁全部通过，只能报告“包自动验收通过”，完整 READY 还需要下一阶段。
 
 CPU 基础指令集构建先确保兼容性，其性能必须在目标 Windows 电脑实测。是否启用 SIMD、长驻后端或 GPU 由基准决定，首版不同时引入这些变量。
 
@@ -171,13 +169,13 @@ CPU 基础指令集构建先确保兼容性，其性能必须在目标 Windows �
 
 ## 阶段六 提交并发布预览包
 
-先完成代码和证据，再发布。当前方案编写不包含提交、推送或 Release 操作；执行以下流程前按仓库约定获得明确提交授权。
+首个预览包已按用户发布指令完成提交、推送和 Release。以下流程用于后续版本：先完成代码和证据，再按当次授权执行提交与发布。
 
 授权后只暂存本次适配范围。README 同时含已有改动时必须按 hunk 检查，不得整文件混入：
 
 ```bash
 git diff -- .gitignore README.md
-git add windows/VoiceInput.Windows scripts/build-windows.ps1 scripts/verify-windows.ps1 .github/workflows/windows.yml docs/windows-development-plan.md .gitignore
+git add windows/global.json windows/VoiceInput.Windows windows/VoiceInput.CoreChecks windows/whisper-utf8.manifest scripts/build-windows.ps1 scripts/verify-windows.ps1 .github/workflows/windows.yml docs/windows-development-plan.md .gitignore
 git add -p README.md
 git diff --cached --check
 git diff --cached --stat
@@ -197,11 +195,11 @@ gh run download <run-id> --name VoiceInput-windows-x64 --dir <新的本地目录
 独立检查下载包和证据后，且发布已获授权，再执行：
 
 ```bash
-gh workflow run windows.yml --ref <已验收分支> -f publish=true -f release_tag=v2.1.0-windows-preview.1
-gh release view v2.1.0-windows-preview.1
+gh workflow run windows.yml --ref <已验收分支> -f publish=true -f release_tag=<新的Windows预览tag>
+gh release view <新的Windows预览tag>
 ```
 
-尖括号是需要替换的占位值；`run-id` 必须匹配目标 commit，不能选列表中无关的绿灯。Windows 使用独立 prerelease tag，不覆盖 `v2.0.0` macOS Release，也不更换既有 DMG。
+新 tag 必须符合 `vX.Y.Z-windows-preview.N`，不能复用已发布的 `v2.1.0-windows-preview.1`。尖括号是需要替换的占位值；`run-id` 必须匹配目标 commit，不能选列表中无关的绿灯。Windows 使用独立 prerelease tag，不覆盖 `v2.0.0` macOS Release，也不更换既有 DMG。
 
 完成标准：Release tag 指向构建 commit，ZIP 与 SHA-256 上传完整，下载后二次哈希匹配；发布说明准确列出系统、模型、离线方式、验收范围和已知问题。仅自动门禁通过、人工门禁未过时，可以在说明充分披露后发布测试预览包，但不能标记正式 READY。
 
@@ -225,6 +223,17 @@ ZIP 更新目前不提供配置迁移和自动回滚。新增配置字段应有�
 
 推荐执行顺序为阶段一至四完成 Windows 核心可用性，再推进预览发布；阶段五单独决定是否更换默认模型，阶段六不以精度优化的口头承诺代替发布证据。安装器随后实施。每阶段附实际命令、退出码、结果和未完成项，任何硬门禁失败均保持 NOT READY。
 
-## 本轮开发记录
+## 发布与独立回归记录
 
-本轮完成 .NET 10 迁移、UI Automation 输入元素跟踪、原生 WASAPI 采集和后台重采样、停止与退出恢复、损坏配置备份恢复、状态诊断及 CoreChecks。主线实际重跑 32 项核心检查通过，Windows 应用跨编译 0 警告、0 错误；完整 Windows 后端构建、离线 ZIP、真人麦克风、UIA 和粘贴尚未运行，整体 NOT READY。当前未提交、推送或发布。详细命令与限制见 [开发验证记录](windows-development-status.md)。
+发布过程中先后修复锁定恢复的运行时选择、简体转换缓冲区和后端 UTF-8 路径，保留中文及空格目录门禁后通过 Windows 完整包验收，并发布 `v2.1.0-windows-preview.1`。CoreChecks 发布准备阶段为 33 项通过；本轮回归结果须另行记录。真人麦克风、UIA 和实际粘贴尚未验收，整体 NOT READY。详细历史证据见 [开发验证记录](windows-development-status.md)。
+
+第 5 步独立回归使用 `.github/workflows/windows-release-regression.yml`，下载线上固定 tag 的 ZIP，而非重新构建；核对 tag/source commit、发布资产 digest、ZIP 校验文件、模型和许可，并将真实音频复制到中文文件名后执行应用。以下命令需 workflow 已推送到 main 后执行：
+
+```bash
+gh workflow run windows-release-regression.yml --ref main
+gh run list --workflow windows-release-regression.yml --limit 5
+gh run view <本次run-id> --log
+gh run download <本次run-id> --name Windows-published-package-regression --dir <新的本地目录>
+```
+
+必须核对本次 run 的源码、下载资产和实际日志；不能引用旧 CI 通过作为新回归结果。本轮已执行上述流程：[已发布包回归 37966673335](https://github.com/bosprimigenious/VoiceInput/actions/runs/37966673335) 通过，主线独立下载诊断并复核。结果、文档对照与未验证项目见 [本轮回归报告](windows-regression-20261010.md)。真人输入链路仍保持 NOT READY。
