@@ -109,7 +109,7 @@ Windows 构建机需要 PowerShell 7、选定 .NET SDK、Git、CMake 和 Visual 
 Get-Command pwsh, git, cmake, dotnet
 dotnet --info
 Push-Location windows/VoiceInput.Windows
-dotnet restore VoiceInput.Windows.csproj --locked-mode
+dotnet restore VoiceInput.Windows.csproj -r win-x64 --locked-mode -p:PublishSingleFile=true -p:SelfContained=true
 dotnet build VoiceInput.Windows.csproj -c Release --no-restore
 Pop-Location
 pwsh -NoProfile -File scripts/build-windows.ps1

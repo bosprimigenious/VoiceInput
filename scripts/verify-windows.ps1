@@ -16,6 +16,8 @@ function Run-App([string]$Name, [string[]]$Arguments, [int]$TimeoutSeconds) {
     $start.WorkingDirectory = $package
     $start.RedirectStandardOutput = $true
     $start.RedirectStandardError = $true
+    $start.StandardOutputEncoding = [Text.Encoding]::UTF8
+    $start.StandardErrorEncoding = [Text.Encoding]::UTF8
     foreach ($argument in $Arguments) { $start.ArgumentList.Add($argument) }
     $process = [Diagnostics.Process]::Start($start)
     # Drain both pipes asynchronously so a verbose backend cannot block on full buffers.

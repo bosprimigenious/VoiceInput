@@ -27,7 +27,7 @@ SDK 固定为 10.0.401，运行时固定为 10.0.12。进入 Windows 项目目�
 
 ```powershell
 cd windows/VoiceInput.Windows
-dotnet restore VoiceInput.Windows.csproj --locked-mode
+dotnet restore VoiceInput.Windows.csproj -r win-x64 --locked-mode -p:PublishSingleFile=true -p:SelfContained=true
 dotnet build VoiceInput.Windows.csproj -c Release --no-restore
 # 故障恢复、真实子进程及音频格式转换检查
 dotnet restore ../VoiceInput.CoreChecks --locked-mode

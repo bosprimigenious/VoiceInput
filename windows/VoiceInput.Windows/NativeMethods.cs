@@ -1,6 +1,5 @@
 using System.ComponentModel;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace VoiceInput.Windows;
 
@@ -16,7 +15,7 @@ internal static class NativeMethods
     [DllImport("user32.dll", SetLastError = true)] private static extern bool GetGUIThreadInfo(uint thread, ref GuiThreadInfo info);
     [DllImport("user32.dll")] private static extern short GetAsyncKeyState(int key);
     [DllImport("user32.dll", SetLastError = true)] private static extern uint SendInput(uint count, Input[] inputs, int size);
-    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)] private static extern int LCMapStringEx(string locale, uint flags, string source, int sourceLength, StringBuilder destination, int destinationLength, IntPtr version, IntPtr reserved, IntPtr sortHandle);
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, ExactSpelling = true, SetLastError = true)] private static extern int LCMapStringEx(string locale, uint flags, string source, int sourceLength, [Out] char[]? destination, int destinationLength, IntPtr version, IntPtr reserved, IntPtr sortHandle);
 
     [StructLayout(LayoutKind.Sequential)] private struct GuiThreadInfo
     {
@@ -88,10 +87,13 @@ internal static class NativeMethods
     private static Input Key(ushort key, bool up = false) => new() { Type = 1, Data = new InputUnion { Keyboard = new KeyboardInput { Key = key, Flags = up ? 2u : 0 } } };
     internal static string ToSimplified(string text)
     {
-        var needed = LCMapStringEx("zh-CN", 0x02000000, text, text.Length, new StringBuilder(), 0, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero);
-        if (needed == 0) return text;
-        var buffer = new StringBuilder(needed);
-        if (LCMapStringEx("zh-CN", 0x02000000, text, text.Length, buffer, needed, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero) == 0) return text;
-        return buffer.ToString();
+        if (text.Length == 0) return text;
+        var needed = LCMapStringEx("zh-CN", 0x02000000, text, text.Length, null, 0, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero);
+        if (needed == 0) throw new Win32Exception(Marshal.GetLastWin32Error());
+        // An explicit source length excludes NUL; consume the returned character count.
+        var buffer = new char[needed];
+        var written = LCMapStringEx("zh-CN", 0x02000000, text, text.Length, buffer, needed, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero);
+        if (written == 0) throw new Win32Exception(Marshal.GetLastWin32Error());
+        return new string(buffer, 0, written);
     }
 }

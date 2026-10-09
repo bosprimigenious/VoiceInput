@@ -8,6 +8,7 @@ internal static class Program
         ApplicationConfiguration.Initialize();
         if (args.Length > 0)
         {
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
             try
             {
                 var settings = new AppSettings();
@@ -20,7 +21,11 @@ internal static class Program
                     var endpoints = devices.EnumerateAudioEndPoints(NAudio.CoreAudioApi.DataFlow.Capture, NAudio.CoreAudioApi.DeviceState.Active);
                     _ = endpoints.Count;
                     _ = typeof(System.Windows.Automation.AutomationElement).Assembly.FullName;
-                    if (NativeMethods.ToSimplified("語音輸入") != "语音输入") throw new InvalidOperationException("Windows 简体中文转换验证失败。");
+                    foreach (var sample in new[] { ("語音輸入", "语音输入"), ("", ""), ("VoiceInput 語音", "VoiceInput 语音") })
+                    {
+                        var converted = NativeMethods.ToSimplified(sample.Item1);
+                        if (converted != sample.Item2) throw new InvalidOperationException($"Chinese conversion failed: length={converted.Length}, UTF16={string.Join(",", converted.Select(c => ((int)c).ToString("X4")))}");
+                    }
                     return 0;
                 }
                 if (args is ["--verify-transcription", var wav, var output])
