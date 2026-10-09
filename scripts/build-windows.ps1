@@ -19,6 +19,8 @@ $work = Join-Path $root ('build/windows-' + [guid]::NewGuid().ToString('N'))
 $src = Join-Path $work 'whisper.cpp'
 $nativeBuild = Join-Path $work 'native'
 $package = Join-Path $out 'VoiceInput 语音输入'
+[xml]$appProject = Get-Content (Join-Path $root 'windows/VoiceInput.Windows/VoiceInput.Windows.csproj') -Raw
+$appVersion = $appProject.Project.PropertyGroup.Version
 New-Item -ItemType Directory -Path $work, $package -Force | Out-Null
 Invoke-Checked 'git' @('clone', '--depth', '1', '--branch', 'v1.7.6', 'https://github.com/ggml-org/whisper.cpp.git', $src)
 $actualCommit = (& git -C $src rev-parse HEAD).Trim()
@@ -77,6 +79,7 @@ foreach ($component in @('wpf', 'winforms')) {
     Invoke-WebRequest "https://raw.githubusercontent.com/dotnet/$component/v$desktopRuntimeVersion/THIRD-PARTY-NOTICES.TXT" -OutFile (Join-Path $licenses "dotnet-$component-THIRD-PARTY-NOTICES.txt")
 }
 if (Test-Path (Join-Path $root 'LICENSE')) { Copy-Item (Join-Path $root 'LICENSE') (Join-Path $licenses 'VoiceInput-LICENSE.txt') }
+Copy-Item (Join-Path $root 'windows/QUICKSTART.md') (Join-Path $package '使用说明.md')
 @"
 VoiceInput Windows 11 x64 预览版（Windows 10 兼容性待验收）
 ZIP 为可携带版。解压整个 ZIP 并运行 VoiceInput.exe，保留旁边的 backend/ 和 models/ 文件夹。
@@ -89,7 +92,7 @@ CPU 基础指令集优先兼容性，性能须在您的 Windows 电脑上实测�
 "@ | Set-Content (Join-Path $package 'WINDOWS-PREVIEW.txt') -Encoding utf8
 @{ whisperTag = 'v1.7.6'; whisperCommit = $whisperCommit; model = 'ggml-small.bin';
    modelSize = $modelSize; modelSha256 = $modelHash; runtime = 'win-x64'; sdkVersion = $sdkVersion; runtimeVersion = $runtimeVersion; desktopRuntimeVersion = $desktopRuntimeVersion; native = 'CPU baseline, static CRT';
-   sourceCommit = (& git rev-parse HEAD).Trim() } | ConvertTo-Json | Set-Content (Join-Path $package 'build-info.json') -Encoding utf8
+   appVersion = $appVersion; sourceCommit = (& git rev-parse HEAD).Trim() } | ConvertTo-Json | Set-Content (Join-Path $package 'build-info.json') -Encoding utf8
 $zip = Join-Path $out 'VoiceInput-windows-x64.zip'
 Compress-Archive -Path $package -DestinationPath $zip -CompressionLevel Optimal
 # Execute the package extracted from the exact release ZIP, under a Chinese/space path.
@@ -107,7 +110,10 @@ foreach ($file in $originalFiles) {
         throw "ZIP integrity check failed: $relative"
     }
 }
-& (Join-Path $PSScriptRoot 'verify-windows.ps1') -PackageDirectory $extractedPackage -Fixture (Join-Path $src 'samples/jfk.wav')
+$fixture = Join-Path $extract '输入 音频 JFK.wav'
+Copy-Item (Join-Path $src 'samples/jfk.wav') $fixture
+if ((Get-FileHash $fixture).Hash.ToLowerInvariant() -ne '59dfb9a4acb36fe2a2affc14bacbee2920ff435cb13cc314a08c13f66ba7860e') { throw 'JFK fixture hash mismatch.' }
+& (Join-Path $PSScriptRoot 'verify-windows.ps1') -PackageDirectory $extractedPackage -Fixture $fixture
 if (-not $?) { throw 'Windows aggregate verification failed.' }
 Copy-Item (Join-Path $extract 'verification') (Join-Path $out 'verification') -Recurse
 ((Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant() + '  VoiceInput-windows-x64.zip') |

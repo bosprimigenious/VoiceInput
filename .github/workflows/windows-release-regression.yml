@@ -1,6 +1,22 @@
 name: Windows published package regression
 on:
   workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Existing Windows preview tag'
+        default: 'v2.1.0-windows-preview.1'
+        required: true
+      source_commit:
+        description: 'Expected published source commit'
+        default: 'ae9bee0ed90cf42e003b06e4bb8950fed1b5709c'
+        required: true
+      zip_sha256:
+        description: 'Expected published ZIP SHA256'
+        default: 'e15eaef1dedd88523d263a70d44461527878f0075b90b92640091e7217613b13'
+        required: true
+      app_version:
+        description: 'Expected application version (optional for preview.1)'
+        required: false
 permissions:
   contents: read
 jobs:
@@ -24,11 +40,16 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+          SOURCE_COMMIT: ${{ inputs.source_commit }}
+          ZIP_SHA256: ${{ inputs.zip_sha256 }}
+          APP_VERSION: ${{ inputs.app_version }}
         run: |
           $ErrorActionPreference = 'Stop'
-          $tag = 'v2.1.0-windows-preview.1'
-          $commit = 'ae9bee0ed90cf42e003b06e4bb8950fed1b5709c'
-          $hash = 'e15eaef1dedd88523d263a70d44461527878f0075b90b92640091e7217613b13'
+          $tag = $env:RELEASE_TAG
+          $commit = $env:SOURCE_COMMIT
+          $hash = $env:ZIP_SHA256
+          if ($tag -notmatch '^v[0-9]+\.[0-9]+\.[0-9]+-windows-preview\.[0-9]+$' -or $commit -notmatch '^[a-f0-9]{40}$' -or $hash -notmatch '^[a-f0-9]{64}$') { throw 'Invalid expected release inputs.' }
           $releaseText = gh api "repos/$env:GH_REPO/releases/tags/$tag"
           if ($LASTEXITCODE -ne 0) { throw 'Cannot read published release.' }
           $release = $releaseText | ConvertFrom-Json
@@ -45,6 +66,7 @@ jobs:
           ./scripts/verify-windows-release.ps1 -Zip build/release-download/VoiceInput-windows-x64.zip `
             -Checksum build/release-download/VoiceInput-windows-x64.zip.sha256 `
             -Fixture build/release-download/jfk.wav -ExpectedCommit $commit -ExpectedSha256 $hash `
+            -ExpectedVersion $env:APP_VERSION `
             -OutputDirectory 'build/已发布 Windows 包回归'
       - name: Retain actual regression evidence
         if: always()

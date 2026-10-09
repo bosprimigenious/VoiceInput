@@ -19,7 +19,7 @@ on:
       release_tag:
         description: 'New independent Windows preview tag (do not reuse an existing tag)'
         type: string
-        default: 'v2.1.0-windows-preview.1'
+        default: 'v2.1.0-windows-preview.2'
 permissions:
   contents: read
 jobs:
@@ -90,8 +90,10 @@ jobs:
 
           包内附带 .NET 10 运行时、CPU 版 whisper.cpp v1.7.6 和多语言 Whisper small 模型，转写可离线运行。
           Windows runner 已通过自动门禁：EXE 启动检查、真实 JFK WAV 转写及无效音频拒绝；执行路径包含中文和空格。
-          真人麦克风录音、全局快捷键冲突、跨应用文字注入尚未完成人工验收。
+          ZIP 内新增使用说明；验证包含中文音频文件名。应用版本和源码记录于 build-info.json。
+          真人麦克风录音、全局快捷键冲突、跨应用文字注入尚未完成人工验收，完整实机验收 NOT READY。中文准确率与日常速度目标未评测。
           这是未签名预览版，Windows SmartScreen 可能显示提示。
           NOTES
-          gh release create "$RELEASE_TAG" dist/windows/VoiceInput-windows-x64.zip dist/windows/VoiceInput-windows-x64.zip.sha256 \
+          printf '\n源码提交：`%s`。\n构建和验证：https://github.com/%s/actions/runs/%s\n' "$SOURCE_COMMIT" "$GH_REPO" "$GITHUB_RUN_ID" >> release-notes.md
+          gh release create "$RELEASE_TAG" dist/windows/VoiceInput-windows-x64.zip dist/windows/VoiceInput-windows-x64.zip.sha256 dist/windows/verification/verification.json \
             --target "$SOURCE_COMMIT" --prerelease --latest=false --title "VoiceInput $RELEASE_TAG" --notes-file release-notes.md

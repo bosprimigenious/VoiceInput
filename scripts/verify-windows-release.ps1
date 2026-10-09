@@ -4,7 +4,8 @@ param(
     [Parameter(Mandatory)][string]$Fixture,
     [Parameter(Mandatory)][string]$ExpectedCommit,
     [Parameter(Mandatory)][string]$ExpectedSha256,
-    [Parameter(Mandatory)][string]$OutputDirectory
+    [Parameter(Mandatory)][string]$OutputDirectory,
+    [string]$ExpectedVersion = ''
 )
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
@@ -24,6 +25,11 @@ if ($info.sourceCommit -ne $ExpectedCommit -or $info.runtime -ne 'win-x64' -or
     $info.sdkVersion -ne '10.0.401' -or $info.runtimeVersion -ne '10.0.12' -or
     $info.desktopRuntimeVersion -ne '10.0.12' -or
     $info.whisperCommit -ne 'a8d002cfd879315632a579e73f0148d06959de36') { throw 'Published build metadata mismatch.' }
+if ($ExpectedVersion) {
+    $exeVersion = (Get-Item (Join-Path $package 'VoiceInput.exe')).VersionInfo.ProductVersion
+    if ($info.appVersion -ne $ExpectedVersion -or -not $exeVersion.StartsWith($ExpectedVersion, [StringComparison]::Ordinal)) { throw 'Published EXE/application version mismatch.' }
+    if ((Get-Item (Join-Path $package '使用说明.md')).Length -eq 0) { throw 'Missing user instructions.' }
+}
 $model = Join-Path $package 'models/ggml-small.bin'
 $modelHash = (Get-FileHash $model -Algorithm SHA256).Hash.ToLowerInvariant()
 if ((Get-Item $model).Length -ne 487601967 -or
@@ -44,6 +50,7 @@ Write-Host "Published source commit: $($info.sourceCommit)"
 if (-not $?) { throw 'Published EXE regression failed.' }
 @{ zipSha256 = $hash; sourceCommit = $info.sourceCommit; modelSha256 = $modelHash;
    unicodeAudioPath = 'passed'; licenses = 'passed'; publishedPackage = 'passed';
+   expectedAppVersion = $ExpectedVersion;
    humanMicrophone = 'not tested'; textInjection = 'not tested'; timestampUtc = [DateTime]::UtcNow.ToString('o') } |
     ConvertTo-Json | Set-Content (Join-Path $out 'verification/release-regression.json') -Encoding utf8
 Write-Host 'Published Windows ZIP regression passed; human acceptance remains pending.'
