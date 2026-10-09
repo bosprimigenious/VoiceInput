@@ -7,7 +7,21 @@ macOS 菜单栏语音输入工具。本地 Whisper 模型转录（离线、不�
 - **系统要求**：macOS 15.0 或更高（本版在 **macOS 27.0.1 + Xcode 27** 上构建与验证）
 - **许可证**：MIT（见 [LICENSE](LICENSE)），第三方组件见下方「第三方组件」
 
-## 启动
+## Windows 预览版
+
+Windows 版本独立放在 [`windows/VoiceInput.Windows`](windows/VoiceInput.Windows)，目标为 Windows 11 x64，Windows 10 兼容性待实机验收。
+沿用本地 Whisper 转写流程：系统托盘 → `Ctrl + I` 开始/停止录音 → 转写 → 粘贴到录音前的窗口。
+默认使用 small 模型，设置中可选择 medium / large-v3-turbo、语言和自然句提示词。
+
+通过 Windows CI 门禁并发布后的下载入口：[GitHub Releases](https://github.com/bosprimigenious/VoiceInput/releases)。
+Windows 预览包为 ZIP，解压整个目录后双击 `VoiceInput.exe`；不要只复制单个 EXE。
+包内包含 .NET 运行时、whisper.cpp CPU 后端和 small 模型，转写时不上传音频。
+当前不包含 macOS 的实时预览、会议记录、说话人区分或云端 AI 增强。
+
+构建和门禁见 [Windows 开发说明](windows/VoiceInput.Windows/README.md)，当前使用 .NET 10。阶段进度与实际失败记录见 [开发验证记录](docs/windows-development-status.md)。
+Windows 实机的麦克风、快捷键和跨应用粘贴尚需验收，预览版不代表这些环节已通过。
+
+## macOS 启动
 
 ```bash
 ./scripts/build.sh

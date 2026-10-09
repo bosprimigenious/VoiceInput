@@ -1,0 +1,97 @@
+name: Windows preview
+on:
+  push:
+    paths:
+      - 'windows/**'
+      - 'scripts/*-windows.ps1'
+      - '.github/workflows/windows.yml'
+  pull_request:
+    paths:
+      - 'windows/**'
+      - 'scripts/*-windows.ps1'
+      - '.github/workflows/windows.yml'
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Publish a Windows prerelease after automated gates pass'
+        type: boolean
+        default: false
+      release_tag:
+        description: 'New independent Windows preview tag (do not reuse an existing tag)'
+        type: string
+        default: 'v2.1.0-windows-preview.1'
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: windows-2022
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: windows/global.json
+      - name: Verify transcription error handling
+        shell: pwsh
+        working-directory: windows/VoiceInput.Windows
+        run: |
+          dotnet restore ../VoiceInput.CoreChecks --locked-mode
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          dotnet run --project ../VoiceInput.CoreChecks -c Release --no-restore
+      - name: Build and verify offline Windows package
+        shell: pwsh
+        run: ./scripts/build-windows.ps1
+      - name: Save verification diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: VoiceInput-windows-diagnostics
+          path: build/windows-*/ZIP 验收/verification/
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Save package and verification evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: VoiceInput-windows-x64
+          path: |
+            dist/windows/VoiceInput-windows-x64.zip
+            dist/windows/VoiceInput-windows-x64.zip.sha256
+            dist/windows/verification/
+          if-no-files-found: error
+          retention-days: 14
+  publish:
+    if: github.event_name == 'workflow_dispatch' && inputs.publish
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: VoiceInput-windows-x64
+          path: dist/windows
+      - name: Publish independent Windows prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+          SOURCE_COMMIT: ${{ github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-windows-preview\.[0-9]+$ ]] || { echo 'Invalid Windows preview tag'; exit 1; }
+          if gh api "repos/$GH_REPO/git/ref/tags/$RELEASE_TAG" > tag-check.json 2> tag-error.txt; then
+            echo 'Tag already exists. Use a new Windows preview tag.'; exit 1
+          elif ! grep -q 'HTTP 404' tag-error.txt; then
+            cat tag-error.txt; exit 1
+          fi
+          cat > release-notes.md <<'NOTES'
+          Windows 11 x64 预览版，Windows 10 兼容性待验收。ZIP 为可携带版。解压整个 ZIP，运行 VoiceInput.exe，保留旁边的 backend/ 和 models/ 文件夹。
+
+          包内附带 .NET 10 运行时、CPU 版 whisper.cpp v1.7.6 和多语言 Whisper small 模型，转写可离线运行。
+          Windows runner 已通过自动门禁：EXE 启动检查、真实 JFK WAV 转写及无效音频拒绝；执行路径包含中文和空格。
+          真人麦克风录音、全局快捷键冲突、跨应用文字注入尚未完成人工验收。
+          这是未签名预览版，Windows SmartScreen 可能显示提示。
+          NOTES
+          gh release create "$RELEASE_TAG" dist/windows/VoiceInput-windows-x64.zip dist/windows/VoiceInput-windows-x64.zip.sha256 \
+            --target "$SOURCE_COMMIT" --prerelease --latest=false --title "VoiceInput $RELEASE_TAG" --notes-file release-notes.md

@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../VoiceInput.Windows/AppSettings.cs" Link="AppSettings.cs" />
+    <Compile Include="../VoiceInput.Windows/DiagnosticLog.cs" Link="DiagnosticLog.cs" />
+    <Compile Include="../VoiceInput.Windows/WhisperService.cs" Link="WhisperService.cs" />
+    <Compile Include="../VoiceInput.Windows/AudioRecorder.cs" Link="AudioRecorder.cs" />
+    <PackageReference Include="NAudio" Version="2.2.1" />
+  </ItemGroup>
+</Project>
