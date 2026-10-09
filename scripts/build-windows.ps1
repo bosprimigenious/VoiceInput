@@ -23,10 +23,14 @@ New-Item -ItemType Directory -Path $work, $package -Force | Out-Null
 Invoke-Checked 'git' @('clone', '--depth', '1', '--branch', 'v1.7.6', 'https://github.com/ggml-org/whisper.cpp.git', $src)
 $actualCommit = (& git -C $src rev-parse HEAD).Trim()
 if ($LASTEXITCODE -ne 0 -or $actualCommit -ne $whisperCommit) { throw 'Unexpected whisper.cpp v1.7.6 source commit.' }
+# The upstream CLI uses narrow argv/file APIs. Embed UTF-8 process code page so
+# Unicode installation, model and user temporary paths survive those APIs.
+$utf8Manifest = (Join-Path $root 'windows/whisper-utf8.manifest').Replace('\', '/')
 # Baseline x64 CPU build: avoid requiring the runner CPU's AVX extensions or a GPU.
 # Static CRT and disabled OpenMP avoid an external Visual C++ runtime dependency.
 Invoke-Checked 'cmake' @('-S', $src, '-B', $nativeBuild, '-G', 'Visual Studio 17 2022', '-A', 'x64',
     '-DCMAKE_POLICY_DEFAULT_CMP0091=NEW', '-DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded',
+    "-DCMAKE_EXE_LINKER_FLAGS=/MANIFEST:EMBED /MANIFESTINPUT:`"$utf8Manifest`"",
     '-DBUILD_SHARED_LIBS=OFF', '-DWHISPER_BUILD_TESTS=OFF', '-DWHISPER_BUILD_SERVER=OFF',
     '-DGGML_NATIVE=OFF', '-DGGML_SSE42=OFF', '-DGGML_AVX=OFF', '-DGGML_AVX2=OFF',
     '-DGGML_BMI2=OFF', '-DGGML_FMA=OFF', '-DGGML_F16C=OFF', '-DGGML_OPENMP=OFF',
