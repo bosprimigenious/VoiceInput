@@ -1,0 +1,56 @@
+name: Windows published package regression
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  regression:
+    runs-on: windows-2022
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: windows/global.json
+      - name: Re-run production core regressions
+        shell: pwsh
+        working-directory: windows
+        run: |
+          dotnet restore VoiceInput.CoreChecks --locked-mode
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          dotnet run --project VoiceInput.CoreChecks -c Release --no-restore
+      - name: Download and execute published preview
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $tag = 'v2.1.0-windows-preview.1'
+          $commit = 'ae9bee0ed90cf42e003b06e4bb8950fed1b5709c'
+          $hash = 'e15eaef1dedd88523d263a70d44461527878f0075b90b92640091e7217613b13'
+          $releaseText = gh api "repos/$env:GH_REPO/releases/tags/$tag"
+          if ($LASTEXITCODE -ne 0) { throw 'Cannot read published release.' }
+          $release = $releaseText | ConvertFrom-Json
+          if ($release.draft -or -not $release.prerelease -or $release.target_commitish -ne $commit) { throw 'Unexpected release metadata.' }
+          $refText = gh api "repos/$env:GH_REPO/git/ref/tags/$tag"
+          if ($LASTEXITCODE -ne 0) { throw 'Cannot verify release tag.' }
+          $ref = $refText | ConvertFrom-Json
+          if ($ref.object.type -ne 'commit' -or $ref.object.sha -ne $commit) { throw 'Release tag source mismatch.' }
+          $asset = @($release.assets | Where-Object name -eq 'VoiceInput-windows-x64.zip')
+          if ($asset.Count -ne 1 -or $asset[0].digest -ne "sha256:$hash" -or $asset[0].state -ne 'uploaded') { throw 'Unexpected published ZIP digest/state.' }
+          gh release download $tag --pattern 'VoiceInput-windows-x64.zip*' --dir build/release-download
+          if ($LASTEXITCODE -ne 0) { throw 'Published ZIP download failed.' }
+          Invoke-WebRequest 'https://raw.githubusercontent.com/ggml-org/whisper.cpp/a8d002cfd879315632a579e73f0148d06959de36/samples/jfk.wav' -OutFile build/release-download/jfk.wav
+          ./scripts/verify-windows-release.ps1 -Zip build/release-download/VoiceInput-windows-x64.zip `
+            -Checksum build/release-download/VoiceInput-windows-x64.zip.sha256 `
+            -Fixture build/release-download/jfk.wav -ExpectedCommit $commit -ExpectedSha256 $hash `
+            -OutputDirectory 'build/已发布 Windows 包回归'
+      - name: Retain actual regression evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Windows-published-package-regression
+          path: build/已发布 Windows 包回归/verification/
+          if-no-files-found: warn
+          retention-days: 30
