@@ -74,3 +74,5 @@ gh run download <本次run-id> --name Windows-published-package-regression --dir
 ```
 
 脚本固定当前预览的源码/包哈希；验证下一版本前先审阅并更新预期值，不能静默换包。输出目录存在会拒绝，失败非零退出并保存已产生的诊断。
+
+后续第 6 步已更新 preview.2，workflow 默认值随之更新。本报告保留 preview.1 的历史结果；复测该旧版需显式指定旧 tag/source/hash，并将 app_version 留空。新版证据见 [preview.2 发布记录](windows-preview2-release-20261010.md)。

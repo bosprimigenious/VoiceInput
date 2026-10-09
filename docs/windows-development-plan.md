@@ -12,21 +12,21 @@
 
 ## 当前状态与硬阻塞
 
-测试阶段确认的输出管道超时缺陷已修复，发布准备阶段核心回归为 33 项通过。已发布 [v2.1.0-windows-preview.1](https://github.com/bosprimigenious/VoiceInput/releases/tag/v2.1.0-windows-preview.1)，源码为 `ae9bee0ed90cf42e003b06e4bb8950fed1b5709c`。发布时 Windows runner 已执行完整 ZIP 解压、启动、真实 JFK 转写及缺失/损坏音频负控制。历史失败证据见 [测试报告](windows-test-report-20261010.md)。
+测试阶段确认的输出管道超时缺陷已修复，发布准备阶段核心回归为 33 项通过。已发布 [v2.1.0-windows-preview.2](https://github.com/bosprimigenious/VoiceInput/releases/tag/v2.1.0-windows-preview.2)，源码为 `9d71a9a88a459481cdc8354670c38e5e75b1cc4b`。发布时 Windows runner 已执行完整 ZIP 解压、启动、真实 JFK 转写及缺失/损坏音频负控制。历史失败证据见 [测试报告](windows-test-report-20261010.md)。
 
-当前完整验收状态为 **NOT READY**：公开预览包已交付，真人输入链路尚未验收。发布时通过不能代替第 5 步对已发布 ZIP 的独立回归结果。
+当前完整验收状态为 **NOT READY**：公开预览包已交付，真人输入链路尚未验收。新版发布与线上 ZIP 复验均通过，详情见 [preview.2 发布记录](windows-preview2-release-20261010.md)。
 
 | 项目 | 当前事实 | 下一项验收 |
 | --- | --- | --- |
 | macOS 主工程 | 仍有会话开始前的未提交改动 | 单独保留，不混入 Windows 提交 |
 | Windows 客户端 | .NET 10、NAudio 2.2.1，已完成 Windows 发布构建 | 日常 Windows 11 电脑真人录音与粘贴 |
-| 完整打包 | ZIP 已发布，大小 518928318 字节 | 下载同一发布资产并校验哈希 |
-| 自动门禁 | 发布时和第 5 步已发布 ZIP 独立回归均通过 | 继续完成真人输入链路 |
+| 完整打包 | ZIP 已发布，大小 518929796 字节 | 下载同一发布资产并校验哈希 |
+| 自动门禁 | preview.2 发布及已发布 ZIP 独立回归均通过 | 继续完成真人输入链路 |
 | GitHub CI | 构建与发布 workflow 已实际运行 | 独立回归记录新的 run 与资产证据 |
 | 公开发布 | 独立 prerelease tag、ZIP、SHA-256、verification.json 已上传 | 保留原资产，新版本使用新 tag |
 | 中文识别精度 | small 默认，尚无新增中文基准结果 | 固定录音集评测 |
 
-硬阻塞：真人麦克风、全局快捷键及跨应用粘贴尚未验收；UI Automation 已实现，但浏览器及原生窗口的实际焦点行为尚未验收。中文准确率与日常机器耗时仍无固定基准结果。已发布 ZIP 的 SHA-256 为 `e15eaef1dedd88523d263a70d44461527878f0075b90b92640091e7217613b13`。
+硬阻塞：真人麦克风、全局快捷键及跨应用粘贴尚未验收；UI Automation 已实现，但浏览器及原生窗口的实际焦点行为尚未验收。中文准确率与日常机器耗时仍无固定基准结果。已发布 ZIP 的 SHA-256 为 `ec70af872186621961fa94f3356b067d9fd58d197306411549f046eba62bc386`。
 
 前一轮曾出现 `async WndProc(ref Message)` 的 CS1988 编译错误，已改为同步分派异步任务。录音关闭异常不结算任务、退出无界等待的问题已修补，但仍需 Windows 故障场景复验。macOS 执行完整 Windows 构建脚本会返回平台错误，这是预期的平台限制，不是 Windows 构建已通过。
 
@@ -67,6 +67,7 @@ VoiceInput 语音输入/
   licenses/
   build-info.json
   WINDOWS-PREVIEW.txt
+  使用说明.md
 ```
 
 配置和最近文本位于 `%LOCALAPPDATA%\VoiceInput`；录音使用系统临时目录，任务结束删除。新转写会覆盖剪贴板，首版明确保留最近文本供恢复，不自动恢复旧剪贴板。后续若提供恢复选项，必须检测剪贴板是否已被用户更新，避免覆盖用户新复制的内容。
@@ -223,7 +224,7 @@ ZIP 更新目前不提供配置迁移和自动回滚。新增配置字段应有�
 
 推荐执行顺序为阶段一至四完成 Windows 核心可用性，再推进预览发布；阶段五单独决定是否更换默认模型，阶段六不以精度优化的口头承诺代替发布证据。安装器随后实施。每阶段附实际命令、退出码、结果和未完成项，任何硬门禁失败均保持 NOT READY。
 
-## 发布与独立回归记录
+## preview.1 发布及第 5 步独立回归历史记录
 
 发布过程中先后修复锁定恢复的运行时选择、简体转换缓冲区和后端 UTF-8 路径，保留中文及空格目录门禁后通过 Windows 完整包验收，并发布 `v2.1.0-windows-preview.1`。CoreChecks 发布准备阶段为 33 项通过；本轮回归结果须另行记录。真人麦克风、UIA 和实际粘贴尚未验收，整体 NOT READY。详细历史证据见 [开发验证记录](windows-development-status.md)。
 
@@ -237,3 +238,5 @@ gh run download <本次run-id> --name Windows-published-package-regression --dir
 ```
 
 必须核对本次 run 的源码、下载资产和实际日志；不能引用旧 CI 通过作为新回归结果。本轮已执行上述流程：[已发布包回归 37966673335](https://github.com/bosprimigenious/VoiceInput/actions/runs/37966673335) 通过，主线独立下载诊断并复核。结果、文档对照与未验证项目见 [本轮回归报告](windows-regression-20261010.md)。真人输入链路仍保持 NOT READY。
+
+第 6 步已发布 preview.2，并以指定 tag/source/hash/app_version 重新下载验证。独立回归 workflow 已参数化，默认对应 preview.2；测试旧版时必须显式传旧版预期值，不能将新版结果归于旧版。

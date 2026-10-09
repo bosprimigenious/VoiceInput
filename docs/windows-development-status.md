@@ -4,7 +4,9 @@
 
 ## 当前结论
 
-Windows x64 预览版已发布：[v2.1.0-windows-preview.1](https://github.com/bosprimigenious/VoiceInput/releases/tag/v2.1.0-windows-preview.1)。Windows runner 通过 33 项核心检查、完整离线 ZIP 解压完整性、中文空格路径启动及简体转换、真实 JFK 转写和坏音频负控。发布标签指向实际通过门禁的源码提交，线上 ZIP digest 与校验附件一致。详细记录见 [发布验收记录](windows-release-20261010.md)。第 5 步已重新下载并执行线上原 ZIP，自动回归通过；当前结果与剩余项见 [回归报告](windows-regression-20261010.md)。
+已更新 preview.2：新增随包使用说明、版本元数据和中文 WAV 发布门禁，发布与线上下载包复验通过。当前源码、哈希与验证记录见 [新版发布记录](windows-preview2-release-20261010.md)。历史第 5 步报告针对 preview.1。
+
+Windows x64 预览版已发布：[v2.1.0-windows-preview.2](https://github.com/bosprimigenious/VoiceInput/releases/tag/v2.1.0-windows-preview.2)。Windows runner 通过 33 项核心检查、完整离线 ZIP 解压完整性、中文空格路径启动及简体转换、真实 JFK 转写和坏音频负控。发布标签指向实际通过门禁的源码提交，线上 ZIP digest 与校验附件一致。preview.1 历史记录见 [首次发布验收记录](windows-release-20261010.md)。第 5 步已重新下载并执行线上原 ZIP，自动回归通过；当前结果与剩余项见 [回归报告](windows-regression-20261010.md)。
 
 **完整实机验收 NOT READY**：真人麦克风、设备拔出、热键和跨应用粘贴尚未验收，中文识别准确率提升尚无固定录音集证据。以下开发阶段的 32 项测试及缺失门禁是历史记录，当前结果以上述发布记录为准。
 

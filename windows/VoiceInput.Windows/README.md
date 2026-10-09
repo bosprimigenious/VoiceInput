@@ -2,7 +2,7 @@
 
 这是 .NET 10 WinForms 托盘客户端，使用 NAudio 按默认麦克风的原生格式录音，后台转换为 16 kHz、16 bit、单声道 WAV，调用随包附带的 whisper.cpp CLI 离线转写。Windows 客户端目前只覆盖语音输入，不包含 macOS 的会议或云端 AI 功能。
 
-已发布 [v2.1.0-windows-preview.1](https://github.com/bosprimigenious/VoiceInput/releases/tag/v2.1.0-windows-preview.1)，提供含 `VoiceInput.exe` 的完整离线 ZIP，目前没有安装器。发布时 Windows 自动包门禁已通过；真人麦克风、全局快捷键和实际文字注入尚未验收，完整状态为 **NOT READY**。第 5 步对已发布 ZIP 的独立回归也已通过，详见 [本轮报告](../../docs/windows-regression-20261010.md)。
+已发布 [v2.1.0-windows-preview.2](https://github.com/bosprimigenious/VoiceInput/releases/tag/v2.1.0-windows-preview.2)，提供含 `VoiceInput.exe` 的完整离线 ZIP，目前没有安装器。发布时 Windows 自动包门禁已通过；真人麦克风、全局快捷键和实际文字注入尚未验收，完整状态为 **NOT READY**。新版 ZIP 的独立回归也已通过，详见 [发布记录](../../docs/windows-preview2-release-20261010.md)。
 
 ## 使用
 
@@ -53,7 +53,7 @@ gh run view <本次run-id> --log
 gh run download <本次run-id> --name Windows-published-package-regression --dir <新的本地目录>
 ```
 
-它下载线上 `v2.1.0-windows-preview.1`，核对源码 `ae9bee0ed90cf42e003b06e4bb8950fed1b5709c` 和 ZIP SHA-256 `e15eaef1dedd88523d263a70d44461527878f0075b90b92640091e7217613b13`，校验模型、许可和 fixture，再执行已发布 EXE。音频文件名与解压路径包含中文和空格。必须检查本次 run 和新证据，不能用重新构建的新 ZIP 或旧 CI 绿灯替代；本次独立回归 37966673335 已通过；复跑仍须核对新证据。
+它下载线上 `v2.1.0-windows-preview.2`，核对源码 `9d71a9a88a459481cdc8354670c38e5e75b1cc4b` 和 ZIP SHA-256 `ec70af872186621961fa94f3356b067d9fd58d197306411549f046eba62bc386`，校验模型、许可和 fixture，再执行已发布 EXE。音频文件名与解压路径包含中文和空格。必须检查本次 run 和新证据，不能用重新构建的新 ZIP 或旧 CI 绿灯替代；本次独立回归 37968351515 已通过；复跑仍须核对新证据。
 
 Windows 本地复验可从仓库根调用 `scripts/verify-windows-release.ps1`，传入已下载的 `-Zip`、`-Checksum`、固定 JFK `-Fixture`、上述 `-ExpectedCommit` / `-ExpectedSha256` 及全新的 `-OutputDirectory`。现有目录会被拒绝，防止旧文本干扰结果。WinExe 验证以退出码和输出文件为准；脚本逐项传递参数，可处理中文和空格路径。
 
