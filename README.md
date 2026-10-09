@@ -13,7 +13,7 @@ Windows 版本独立放在 [`windows/VoiceInput.Windows`](windows/VoiceInput.Win
 沿用本地 Whisper 转写流程：系统托盘 → `Ctrl + I` 开始/停止录音 → 转写 → 粘贴到录音前的窗口。
 默认使用 small 模型，设置中可选择 medium / large-v3-turbo、语言和自然句提示词。
 
-通过 Windows CI 门禁并发布后的下载入口：[GitHub Releases](https://github.com/bosprimigenious/VoiceInput/releases)。
+已发布：[Windows x64 预览版 v2.1.0-windows-preview.1](https://github.com/bosprimigenious/VoiceInput/releases/tag/v2.1.0-windows-preview.1)（ZIP 约 495 MiB）。
 Windows 预览包为 ZIP，解压整个目录后双击 `VoiceInput.exe`；不要只复制单个 EXE。
 包内包含 .NET 运行时、whisper.cpp CPU 后端和 small 模型，转写时不上传音频。
 当前不包含 macOS 的实时预览、会议记录、说话人区分或云端 AI 增强。

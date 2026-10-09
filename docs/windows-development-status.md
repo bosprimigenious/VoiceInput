@@ -4,9 +4,9 @@
 
 ## 当前结论
 
-发布准备阶段已修复继承输出管道导致的超时失效，当前核心检查 **33 项通过**。历史失败与复现见 [测试报告](windows-test-report-20261010.md)。下面的 32 项通过记录属于前一开发阶段。Windows 完整包门禁正在推进；用户已授权打包发布所需的提交和推送。
+Windows x64 预览版已发布：[v2.1.0-windows-preview.1](https://github.com/bosprimigenious/VoiceInput/releases/tag/v2.1.0-windows-preview.1)。Windows runner 通过 33 项核心检查、完整离线 ZIP 解压完整性、中文空格路径启动及简体转换、真实 JFK 转写和坏音频负控。发布标签指向实际通过门禁的源码提交，线上 ZIP digest 与校验附件一致。详细记录见 [发布验收记录](windows-release-20261010.md)。
 
-Windows 源码已推进至 .NET 10、UI Automation 输入元素跟踪、WASAPI 录音与后台重采样、配置恢复和错误诊断。**完整验收 NOT READY**：本机是 macOS，Windows 后端构建、完整离线 ZIP 和真人录音及自动粘贴仍未验收；未提交、推送或上传。
+**完整实机验收 NOT READY**：真人麦克风、设备拔出、热键和跨应用粘贴尚未验收，中文识别准确率提升尚无固定录音集证据。以下开发阶段的 32 项测试及缺失门禁是历史记录，当前结果以上述发布记录为准。
 
 ## 本轮实现
 
@@ -48,13 +48,13 @@ PowerShell 7 Parser 对两个 Windows 脚本均报告 `parserErrors=0`。workflo
 | 同步释放可能等待音频线程或磁盘转换 | 查 NAudio 源码和独立审计发现；退出取消和回收放后台，UI 不等待文件锁 |
 | 全仓库空白检查报告两处 Swift 尾空格 | 会话开始前已有 macOS 改动，未顺手修改 |
 
-## 未完成的硬门禁
+## 开发阶段未完成的硬门禁（历史记录）
 
 1. 在 Windows runner 构建真正的 Windows whisper-cli、自包含应用、模型及完整 ZIP，校验 ZIP 成员，再执行解压出的 EXE。
 2. Windows smoke 的 WASAPI 枚举、UIA 程序集、托盘和简体转换，以及真实 JFK WAV 转写、缺失和损坏 WAV 负控。
 3. 真人麦克风、设备拔出、热键冲突、录音和转写中退出、无孤儿后端进程。
 4. 记事本和浏览器输入区域切换、焦点竞争、权限阻止及剪贴板占用时的恢复。UIA 检查与 SendInput 无法原子化，不能声称绝对没有焦点竞争。
 5. 固定中文录音集的准确率和 Windows 耗时评测。32 项核心检查不证明识别准确率提升。
-6. GitHub 提交和发布授权，随后匹配源码 commit 的 CI、Release tag、ZIP 和哈希验收。
+6. 匹配源码 commit 的 CI、Release tag、ZIP 和哈希验收（提交和发布授权已取得）。
 
 下一步按照 [开发方案](windows-development-plan.md) 执行 Windows 自动及真人门禁，保留每条实际结果后再决定预览或正式发布。

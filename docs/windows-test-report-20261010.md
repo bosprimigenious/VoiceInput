@@ -85,3 +85,17 @@ CoreChecks 不编译或运行 `InputTargetTracker`、`TrayForm` 及真正的 Win
 ## 发布准备阶段修复复验
 
 用户随后授权打包发布。生产超时现在同时覆盖根进程退出及stdout/stderr读取，取消后的根进程清理等待有2秒上限，并关闭读取端。主线重跑实际输出 `PASS inherited output pipe obeys production timeout`、`Core checks passed: 33`，退出0。回归未删除。修复期间发生一次CS0136局部变量重名编译失败，纠正后Windows应用build为0警告、0错误。前文32通过1失败是测试阶段的历史结果；最终Windows构建和发布证据另行记录。
+
+## Windows CI 发布准备过程
+
+- [第一次 CI](https://github.com/bosprimigenious/VoiceInput/actions/runs/37962376561)：核心检查通过，Windows whisper.cpp 编译通过；应用 locked restore 因锁文件含 osx-arm64 而失败（NU1004）。固定单一 win-x64 RuntimeIdentifier 并重新生成锁文件后重试。
+- [第二次 CI](https://github.com/bosprimigenious/VoiceInput/actions/runs/37962930633)：核心检查、Windows 编译、模型校验和 ZIP 完整性通过；解压后的应用简体转换 smoke 失败。LCMapStringEx 的显式源长度不保证输出 NUL，而 StringBuilder 回拷依赖 NUL；已改用 char[] 并按 API 返回字符数构造字符串，增加空文本与中英混合检查，没有跳过门禁。
+- 修复后本机应用编译 0 警告、0 错误，核心检查 33 项通过。主线曾从错误目录构建，触发 NU1004；改用 windows 目录下的规定锁定恢复命令后重跑通过。
+- [第三次 CI](https://github.com/bosprimigenious/VoiceInput/actions/runs/37963953009)：简体转换与启动 smoke 通过；真实 JFK 转写失败，后端退出 3，无法打开中文路径下的模型。为原生后端嵌入 UTF-8 activeCodePage manifest 后重试，保留中文空格 ZIP 解压路径门禁。Windows 10 兼容性仍待验收；该 manifest 需要 Windows 10 1903 或更高。
+- 第四次 CI 与最终发布结果另见发布记录。真人麦克风、热键和跨应用输入仍未验收。
+
+- [第四次 CI](https://github.com/bosprimigenious/VoiceInput/actions/runs/37964395754)：完整门禁通过，33 项核心检查；smoke=0、JFK=0、missing-audio=1、malformed-audio=1。JFK 实际文本为 `And so my fellow Americans, ask not what your country can do for you, ask what you can do for your country.`。主线下载诊断附件并逐项检查 JSON 与转写正文，结果一致。
+- 本地完整 artifact 下载约三分钟收到 17 MB / 519 MB；主动终止下载进程，退出 143，切换到同一源码提交的 workflow_dispatch 发布链路，重新执行全部门禁并在 runner 上传。没有把未完成的本地下载计作校验通过。
+- README 原文保护检查第一次遗漏允许的平台标题改名，断言失败；查看 diff 后修正检查，确认除 Windows 部分及“macOS 启动”标题外原文一致。macOS 源码、脚本及 CHANGELOG 与初始快照一致。
+
+最终发布及逐项验收结果见 [Windows 发布验收记录](windows-release-20261010.md)。
